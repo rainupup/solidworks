@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <RootNamespace>SolidWorks.ParametricAddin</RootNamespace>
+    <AssemblyName>SolidWorks.ParametricAddin</AssemblyName>
+    <UseWPF>true</UseWPF>
+    <LangVersion>12.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <!-- Exclude stubs, lib, obj from compilation -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);stubs\**;lib\**;obj\**</DefaultItemExcludes>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <DefineConstants>$(DefineConstants);DEBUG</DefineConstants>
+  </PropertyGroup>
+
+  <!-- SW Interop DLLs: copy real ones to lib/ or build stubs -->
+  <ItemGroup>
+    <Reference Include="SolidWorks.Interop.sldworks">
+      <HintPath>lib\SolidWorks.Interop.sldworks.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="SolidWorks.Interop.swconst">
+      <HintPath>lib\SolidWorks.Interop.swconst.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="SolidWorks.Interop.swpublished">
+      <HintPath>lib\SolidWorks.Interop.swpublished.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="EPPlus" Version="7.1.3" />
+  </ItemGroup>
+
+
+</Project>

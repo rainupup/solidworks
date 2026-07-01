@@ -1,0 +1,93 @@
+<UserControl x:Class="SolidWorks.ParametricAddin.TaskPane.MainTaskPaneControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:SolidWorks.ParametricAddin.TaskPane"
+             xmlns:vm="clr-namespace:SolidWorks.ParametricAddin.TaskPane.ViewModels"
+             xmlns:helpers="clr-namespace:SolidWorks.ParametricAddin.Helpers"
+             mc:Ignorable="d"
+             d:DesignHeight="800" d:DesignWidth="680"
+             MinWidth="480">
+
+    <UserControl.Resources>
+        <helpers:BoolToVisibilityConverter x:Key="BoolToVisibility" />
+        <helpers:InvertBoolToVisibilityConverter x:Key="InvertBoolToVisibility" />
+
+        <Style x:Key="HeaderTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="#1a237e" />
+            <Setter Property="Margin" Value="0,0,0,8" />
+        </Style>
+
+        <Style x:Key="SectionHeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="#37474f" />
+            <Setter Property="Margin" Value="0,12,0,4" />
+        </Style>
+
+        <Style x:Key="StatusBarStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="Foreground" Value="#616161" />
+            <Setter Property="Margin" Value="0,8,0,0" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+
+        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="32" />
+            <Setter Property="Padding" Value="12,4" />
+            <Setter Property="Margin" Value="0,4" />
+            <Setter Property="Background" Value="#1976d2" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+
+        <Style x:Key="SecondaryButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="28" />
+            <Setter Property="Padding" Value="8,3" />
+            <Setter Property="Margin" Value="0,3" />
+            <Setter Property="Background" Value="#e0e0e0" />
+            <Setter Property="Foreground" Value="#37474f" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <DockPanel Margin="10">
+            <!-- Header -->
+            <TextBlock DockPanel.Dock="Top" Text="参数化设计工具" Style="{StaticResource HeaderTextStyle}" />
+            <TextBlock DockPanel.Dock="Top" Text="{Binding StatusMessage}" Style="{StaticResource StatusBarStyle}" />
+
+            <!-- Mode Select Page -->
+            <Grid DockPanel.Dock="Top"
+                  Visibility="{Binding IsModeSelect, Converter={StaticResource BoolToVisibility}}">
+                <StackPanel>
+                    <TextBlock Text="选择工作模式" Style="{StaticResource SectionHeaderStyle}" />
+                    <TextBlock Text="请先在 SolidWorks 中打开一个模型" FontSize="11" Foreground="#9e9e9e" Margin="0,0,0,12" />
+
+                    <Button Content="设计模式 — 配置参数和规则"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            Command="{Binding SwitchToDesignModeCommand}"
+                            ToolTip="为当前模型定义可配置的参数、约束条件和规则" />
+
+                    <Button Content="使用模式 — 生成新模型"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            Command="{Binding SwitchToUsageModeCommand}"
+                            ToolTip="使用已保存的模板，输入新参数值生成模型" />
+                </StackPanel>
+            </Grid>
+
+            <!-- Design Mode Page -->
+            <local:DesignModeView DataContext="{Binding DesignMode}"
+                                  Visibility="{Binding DataContext.IsDesignMode, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibility}}" />
+
+            <!-- Usage Mode Page -->
+            <local:UsageModeView DataContext="{Binding UsageMode}"
+                                 Visibility="{Binding DataContext.IsUsageMode, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibility}}" />
+        </DockPanel>
+    </ScrollViewer>
+</UserControl>

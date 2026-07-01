@@ -1,0 +1,10 @@
+* text=auto
+
+*.cs text diff=csharp
+*.xaml text
+*.csproj text
+*.sln text
+*.ps1 text
+*.bat text
+*.md text
+*.json text

@@ -1,0 +1,60 @@
+# Build output
+[Bb]in/
+[Oo]bj/
+out/
+publish/
+artifacts/
+
+# .NET / NuGet
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+*.nupkg
+*.snupkg
+packages/
+.nuget/
+
+# Generated assemblies and symbols
+*.dll
+*.exe
+*.pdb
+*.cache
+*.deps.json
+*.runtimeconfig.json
+*.comhost.dll
+*.clsidmap
+
+# Keep source-level project files even though binaries are ignored above.
+!*.csproj
+!*.sln
+
+# SolidWorks / CAD generated or local files
+*.sldprt
+*.sldasm
+*.slddrw
+*.SLDPRT
+*.SLDASM
+*.SLDDRW
+~$*
+
+# Add-in runtime logs
+*.log
+addin_log.txt
+sw_addin_log.txt
+
+# Local IDE/editor state
+.vs/
+.idea/
+.vscode/*.user
+.vscode/*.suo
+.vscode/.ropeproject/
+
+# Personal assistant/tool state
+.claude/settings.local.json
+
+# OS files
+Thumbs.db
+Desktop.ini
+.DS_Store

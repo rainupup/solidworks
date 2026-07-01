@@ -1,0 +1,318 @@
+<UserControl x:Class="SolidWorks.ParametricAddin.TaskPane.UsageModeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:vm="clr-namespace:SolidWorks.ParametricAddin.TaskPane.ViewModels"
+             xmlns:local="clr-namespace:SolidWorks.ParametricAddin.TaskPane"
+             xmlns:helpers="clr-namespace:SolidWorks.ParametricAddin.Helpers"
+             mc:Ignorable="d"
+             d:DesignHeight="800" d:DesignWidth="680">
+
+    <UserControl.Resources>
+        <!-- ===== Converters ===== -->
+        <helpers:BoolToVisibilityConverter x:Key="BoolToVisibility" />
+        <helpers:InvertBoolToVisibilityConverter x:Key="InvertBoolToVisibility" />
+
+        <!-- ===== Styles (MUST be before DataTemplates for StaticResource resolution) ===== -->
+
+        <Style x:Key="HeaderTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="#1a237e" />
+        </Style>
+
+        <Style x:Key="TableHeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="#616161" />
+            <Setter Property="Padding" Value="6,4" />
+            <Setter Property="Background" Value="#f5f5f5" />
+        </Style>
+
+        <Style x:Key="TableCellStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Foreground" Value="#212121" />
+            <Setter Property="Padding" Value="6,4" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+
+        <Style x:Key="NoteCellStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="Foreground" Value="#757575" />
+            <Setter Property="Padding" Value="6,4" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+
+        <Style x:Key="ParamValueInputStyle" TargetType="TextBox">
+            <Setter Property="Height" Value="26" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Margin" Value="2,0" />
+            <Setter Property="Padding" Value="4,0" />
+        </Style>
+
+        <Style x:Key="ParamValueComboStyle" TargetType="ComboBox">
+            <Setter Property="Height" Value="26" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Margin" Value="2,0" />
+            <Setter Property="Padding" Value="4,0" />
+        </Style>
+
+        <Style x:Key="ParamValueReadOnlyStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Foreground" Value="#424242" />
+            <Setter Property="Padding" Value="6,4" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+
+        <Style x:Key="UnitLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="10" />
+            <Setter Property="Foreground" Value="#9e9e9e" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="4,0,4,0" />
+            <Setter Property="Width" Value="36" />
+        </Style>
+
+        <Style x:Key="SectionLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Foreground" Value="#37474f" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="0,0,8,0" />
+        </Style>
+
+        <Style x:Key="GenerateButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="36" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Background" Value="#1976d2" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Padding" Value="24,0" />
+        </Style>
+
+        <Style x:Key="BackButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="26" />
+            <Setter Property="Width" Value="50" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="Background" Value="#e0e0e0" />
+            <Setter Property="Foreground" Value="#37474f" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Padding" Value="4,2" />
+        </Style>
+
+        <!-- ===== DataTemplates for parameter value controls ===== -->
+
+        <!-- Default: TextBox input -->
+        <DataTemplate x:Key="TextBoxTemplate">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource ParamValueInputStyle}" />
+                <TextBlock Grid.Column="1" Text="{Binding Definition.Unit}"
+                           Style="{StaticResource UnitLabelStyle}"
+                           Visibility="{Binding Definition.Unit, Converter={StaticResource BoolToVisibility}, FallbackValue=Collapsed}" />
+            </Grid>
+        </DataTemplate>
+
+        <!-- ComboBox for dropdown options -->
+        <DataTemplate x:Key="ComboBoxTemplate">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <ComboBox ItemsSource="{Binding Definition.Options}"
+                          Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
+                          IsEditable="False"
+                          Style="{StaticResource ParamValueComboStyle}" />
+                <TextBlock Grid.Column="1" Text="{Binding Definition.Unit}"
+                           Style="{StaticResource UnitLabelStyle}"
+                           Visibility="{Binding Definition.Unit, Converter={StaticResource BoolToVisibility}, FallbackValue=Collapsed}" />
+            </Grid>
+        </DataTemplate>
+
+        <!-- Read-only display -->
+        <DataTemplate x:Key="ReadOnlyTemplate">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="{Binding Value}"
+                           Style="{StaticResource ParamValueReadOnlyStyle}" />
+                <TextBlock Grid.Column="1" Text="{Binding Definition.Unit}"
+                           Style="{StaticResource UnitLabelStyle}"
+                           Visibility="{Binding Definition.Unit, Converter={StaticResource BoolToVisibility}, FallbackValue=Collapsed}" />
+            </Grid>
+        </DataTemplate>
+
+        <!-- Template selector (defined in code-behind) -->
+        <local:ParameterTemplateSelector x:Key="ParamTemplateSelector"
+            TextBoxTemplate="{StaticResource TextBoxTemplate}"
+            ComboBoxTemplate="{StaticResource ComboBoxTemplate}"
+            ReadOnlyTemplate="{StaticResource ReadOnlyTemplate}" />
+
+    </UserControl.Resources>
+
+    <!-- ===== Main Layout Grid: 3 rows ===== -->
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />      <!-- Row 0: scrollable parameter area -->
+            <RowDefinition Height="Auto" />   <!-- Row 1: action controls -->
+            <RowDefinition Height="200" />    <!-- Row 2: preview image (fixed) -->
+        </Grid.RowDefinitions>
+
+        <!-- ======================== -->
+        <!-- Row 0: Parameter Area    -->
+        <!-- ======================== -->
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="12,8">
+
+                <!-- Header: back + template name + load -->
+                <DockPanel Margin="0,0,0,8">
+                    <Button Content="&lt;" Style="{StaticResource BackButtonStyle}"
+                            Command="{Binding DataContext.SwitchToSelectModeCommand, RelativeSource={RelativeSource AncestorType=UserControl, AncestorLevel=2}}"
+                            DockPanel.Dock="Left" />
+                    <TextBlock Text="{Binding CurrentTemplateName}" Style="{StaticResource HeaderTextStyle}"
+                               VerticalAlignment="Center" Margin="8,0,0,0" />
+                    <Button Content="加载模板" DockPanel.Dock="Right"
+                            Command="{Binding LoadTemplateByNameCommand}"
+                            Height="26" FontSize="11" Padding="8,2"
+                            Background="#1976d2" Foreground="White" BorderThickness="0" />
+                </DockPanel>
+
+                <Separator Margin="0,0,0,6" />
+
+                <!-- ===== Parameter Table ===== -->
+                <!-- Table Header -->
+                <Grid Margin="0,4,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="120" />
+                        <ColumnDefinition Width="*" MinWidth="160" />
+                        <ColumnDefinition Width="*" MinWidth="120" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="参数名称" Style="{StaticResource TableHeaderStyle}" />
+                    <TextBlock Grid.Column="1" Text="参数值" Style="{StaticResource TableHeaderStyle}" />
+                    <TextBlock Grid.Column="2" Text="备注" Style="{StaticResource TableHeaderStyle}" />
+                </Grid>
+
+                <!-- Table Body -->
+                <ItemsControl ItemsSource="{Binding ParameterInputs}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderBrush="#e0e0e0" BorderThickness="0,0,0,1">
+                                <Grid Margin="0,0,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="120" />
+                                        <ColumnDefinition Width="*" MinWidth="160" />
+                                        <ColumnDefinition Width="*" MinWidth="120" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Col 1: Parameter Name (DisplayName from Design Mode) -->
+                                    <TextBlock Grid.Column="0"
+                                               Text="{Binding Definition.DisplayName}"
+                                               Style="{StaticResource TableCellStyle}" />
+
+                                    <!-- Col 2: Parameter Value (dynamic control via TemplateSelector) -->
+                                    <ContentPresenter Grid.Column="1"
+                                                      Content="{Binding}"
+                                                      ContentTemplateSelector="{StaticResource ParamTemplateSelector}" />
+
+                                    <!-- Col 3: Notes (Description from Design Mode) -->
+                                    <TextBlock Grid.Column="2"
+                                               Text="{Binding Definition.Description}"
+                                               Style="{StaticResource NoteCellStyle}" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <Separator Margin="0,10,0,6" />
+
+                <!-- ===== Spec Number Row ===== -->
+                <DockPanel Margin="0,4,0,2">
+                    <TextBlock Text="规格型号" Style="{StaticResource SectionLabelStyle}"
+                               Width="120" />
+                    <TextBox Text="{Binding SpecNumber, UpdateSourceTrigger=PropertyChanged}"
+                             Height="28" FontSize="13" FontWeight="SemiBold"
+                             Foreground="#1a237e" Padding="6,2"
+                             ToolTip="自动根据参数生成，可以手动修改" />
+                </DockPanel>
+
+                <!-- ===== Output Directory Row ===== -->
+                <DockPanel Margin="0,6,0,4">
+                    <TextBlock Text="输出位置" Style="{StaticResource SectionLabelStyle}"
+                               Width="120" />
+                    <Button Content="..." Width="30" Height="26" DockPanel.Dock="Right"
+                            Command="{Binding BrowseOutputCommand}"
+                            Background="#e0e0e0" BorderThickness="0" FontSize="12"
+                            Margin="4,0,0,0" ToolTip="浏览选择输出文件夹" />
+                    <TextBox Text="{Binding OutputDirectory, UpdateSourceTrigger=PropertyChanged}"
+                             Height="26" FontSize="11" Padding="6,2"
+                             Foreground="#424242" />
+                </DockPanel>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- ======================== -->
+        <!-- Row 1: Action Controls  -->
+        <!-- ======================== -->
+        <Grid Grid.Row="1" Margin="12,4">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Separator Grid.Row="0" Margin="0,0,0,6" />
+
+            <Button Grid.Row="1" Content="生成模型"
+                    Command="{Binding GenerateCommand}"
+                    Style="{StaticResource GenerateButtonStyle}"
+                    HorizontalAlignment="Center" />
+
+            <!-- Status -->
+            <StackPanel Grid.Row="2" Orientation="Horizontal"
+                        HorizontalAlignment="Center" Margin="0,6,0,4">
+                <TextBlock Text="{Binding GenerationProgress}"
+                           FontSize="12" Foreground="#1976d2"
+                           Margin="0,0,8,0" />
+                <TextBlock Text="{Binding StatusMessage}"
+                           FontSize="11" Foreground="#757575"
+                           TextWrapping="Wrap" MaxWidth="500" />
+            </StackPanel>
+        </Grid>
+
+        <!-- ======================== -->
+        <!-- Row 2: Preview Image     -->
+        <!-- ======================== -->
+        <GroupBox Grid.Row="2" Header="产品预览" Margin="8,0,8,8"
+                  BorderBrush="#e0e0e0" BorderThickness="1">
+            <Grid>
+                <!-- Image display when PreviewImagePath is set -->
+                <Image Source="{Binding PreviewImagePath}"
+                       Stretch="Uniform" StretchDirection="Both"
+                       Visibility="{Binding PreviewImagePath, Converter={StaticResource BoolToVisibility}, FallbackValue=Collapsed}" />
+
+                <!-- Placeholder when no preview image -->
+                <TextBlock Text="暂无预览图片&#x0a;请在设计模式中配置产品效果图"
+                           FontSize="13" Foreground="#bdbdbd"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                           TextAlignment="Center"
+                           Visibility="{Binding PreviewImagePath, Converter={StaticResource InvertBoolToVisibility}, FallbackValue=Visible}" />
+            </Grid>
+        </GroupBox>
+    </Grid>
+</UserControl>

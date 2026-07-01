@@ -1,0 +1,12 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Attach to SolidWorks",
+            "type": "coreclr",
+            "request": "attach",
+            "processName": "SLDWORKS.exe",
+            "justMyCode": false
+        }
+    ]
+}
