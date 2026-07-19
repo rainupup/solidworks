@@ -53,6 +53,7 @@ sw_addin_log.txt
 
 # Personal assistant/tool state
 .claude/settings.local.json
+.workbuddy/
 
 # OS files
 Thumbs.db
